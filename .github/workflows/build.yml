@@ -12,7 +12,7 @@ jobs:
           key: ${{ runner.os }}-skia-third_party-cache
       - uses: actions/cache@v3
         with:
-          path: skiasharp/external/skia/out/windows/x64/obj
+          path: skiasharp/externals/skia/out/windows/x64/obj
           key: ${{ runner.os }}-skia-build-cache
 
       - name: Clone source
@@ -29,7 +29,7 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: pwsh
         run: |
-          cd skiasharp\external\skia
+          cd skiasharp\externals\skia
           python tools\git-sync-deps
           python ..\depot_tools\gn.py gen .\out\windows\x64\
 
@@ -37,8 +37,8 @@ jobs:
       - name: Build skia
         working-directory: ${{github.workspace}}
         run: |
-          cp args.gn skiasharp\external\skia\out\windows\x64\
-          cd skiasharp\external\skia
+          cp args.gn skiasharp\externals\skia\out\windows\x64\
+          cd skiasharp\externals\skia
           ..\depot_tools\ninja -C .\out\windows\x64\ SkiaSharp
           cd .\out\windows\x64\
           lib.exe /OUT:libSkiaSharp.lib *.lib
@@ -46,10 +46,10 @@ jobs:
       - name: Package libSkiaSharp
         working-directory: ${{github.workspace}}
         run: |
-          cd skiasharp\external\skia\out\windows\x64\
+          cd skiasharp\externals\skia\out\windows\x64\
           7z a -y -mx9 libSkiaSharp.7z ./libSkiaSharp.lib
 
       - uses: actions/upload-artifact@v3
         with:
           name: libSkiaSharp
-          path: skiasharp/external/skia/out/windows/x64/libSkiaSharp.7z
+          path: skiasharp/externals/skia/out/windows/x64/libSkiaSharp.7z
