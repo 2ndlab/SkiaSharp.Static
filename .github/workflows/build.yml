@@ -17,7 +17,7 @@ jobs:
 
       - name: Clone source
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: |
           mkdir -p skiasharp && cd skiasharp
           git init && git remote add origin https://github.com/mono/SkiaSharp.git
