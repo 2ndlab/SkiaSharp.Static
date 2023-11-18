@@ -8,9 +8,9 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
       - uses: actions/cache@v3
         with:
-          path: skiasharp/externals/skia/out/windows/x64/obj
+          # build should be beside of git repo because it's submodule must be a empty dir when init.
+          path: out/windows/x64/obj
           key: ${{ runner.os }}-skia-build-cache
-
       - name: Clone source
         working-directory: ${{github.workspace}}
         shell: bash
@@ -23,22 +23,19 @@ jobs:
 
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: |
+          mkdir -p out\windows\x64\ && cp args.gn out\windows\x64\
           cd skiasharp\externals\skia
           python tools\git-sync-deps
-          python ..\depot_tools\gn.py gen .\out\windows\x64\
+          python ..\depot_tools\gn.py gen ${{github.workspace}}\out\windows\x64\
 
       - name: Build skia
         working-directory: ${{github.workspace}}
         run: |
-          cp args.gn skiasharp\externals\skia\out\windows\x64\
           cd skiasharp\externals\skia
-
-          python ..\depot_tools\gn.py gen .\out\windows\x64\
-
-          ..\depot_tools\ninja -C .\out\windows\x64\ SkiaSharp
-          cd .\out\windows\x64\
+          ..\depot_tools\ninja -C ${{github.workspace}}\out\windows\x64\ SkiaSharp
+          cd ${{github.workspace}}\out\windows\x64\
           lib.exe /OUT:libSkiaSharp.lib *.lib
 
       - name: Build libHarfBuzzSharp
@@ -50,7 +47,7 @@ jobs:
       - name: Package libSkiaSharp
         working-directory: ${{github.workspace}}
         run: |
-          cd skiasharp\externals\skia\out\windows\x64\
+          cd ${{github.workspace}}\out\windows\x64\
           7z a -y -mx9 libSkiaSharp.7z ./libSkiaSharp.lib
 
       - name: Package libHarfBuzzSharp
@@ -62,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: libSkiaSharp
-          path: skiasharp/externals/skia/out/windows/x64/libSkiaSharp.7z
+          path: out/windows/x64/libSkiaSharp.7z
 
       - uses: actions/upload-artifact@v3
         with:
