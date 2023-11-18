@@ -23,7 +23,7 @@ jobs:
 
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
-        shell: bash
+        shell: pwsh
         run: |
           mkdir -p out\windows\x64\ && cp args.gn out\windows\x64\
           cd skiasharp\externals\skia
