@@ -8,10 +8,6 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
       - uses: actions/cache@v3
         with:
-          path: skiasharp/externals/skia/third_party
-          key: ${{ runner.os }}-skia-third_party-cache
-      - uses: actions/cache@v3
-        with:
           path: skiasharp/externals/skia/out/windows/x64/obj
           key: ${{ runner.os }}-skia-build-cache
 
