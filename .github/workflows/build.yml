@@ -5,7 +5,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-
+      - uses: ilammy/msvc-dev-cmd@v1
       - uses: actions/cache@v3
         with:
           path: skiasharp/externals/skia/third_party
@@ -33,12 +33,14 @@ jobs:
           python tools\git-sync-deps
           python ..\depot_tools\gn.py gen .\out\windows\x64\
 
-      - uses: microsoft/setup-msbuild@v1.1
       - name: Build skia
         working-directory: ${{github.workspace}}
         run: |
           cp args.gn skiasharp\externals\skia\out\windows\x64\
           cd skiasharp\externals\skia
+
+          python ..\depot_tools\gn.py gen .\out\windows\x64\
+
           ..\depot_tools\ninja -C .\out\windows\x64\ SkiaSharp
           cd .\out\windows\x64\
           lib.exe /OUT:libSkiaSharp.lib *.lib
