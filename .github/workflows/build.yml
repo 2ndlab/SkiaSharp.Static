@@ -45,13 +45,31 @@ jobs:
           cd .\out\windows\x64\
           lib.exe /OUT:libSkiaSharp.lib *.lib
 
+      - name: Build libHarfBuzzSharp
+        working-directory: ${{github.workspace}}
+        run: |
+          cd skiasharp\native\windows\libHarfBuzzSharp
+          msbuild -m -t:rebuild -p:Configuration=Release;Platform=x64;ConfigurationType=StaticLibrary;WindowsTargetPlatformVersion=10.0.19041.0;PlatformToolset=v143
+
       - name: Package libSkiaSharp
         working-directory: ${{github.workspace}}
         run: |
           cd skiasharp\externals\skia\out\windows\x64\
           7z a -y -mx9 libSkiaSharp.7z ./libSkiaSharp.lib
 
+      - name: Package libHarfBuzzSharp
+        working-directory: ${{github.workspace}}
+        run: |
+          cd skiasharp\native\windows\libHarfBuzzSharp\bin\x64\Release
+          7z a -y -mx9 libHarfBuzzSharp.7z ./libHarfBuzzSharp.lib
+
       - uses: actions/upload-artifact@v3
         with:
           name: libSkiaSharp
           path: skiasharp/externals/skia/out/windows/x64/libSkiaSharp.7z
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: libHarfBuzzSharp
+          path: skiasharp/native/windows/libHarfBuzzSharp/bin/x64/Release/libHarfBuzzSharp.7z
+
