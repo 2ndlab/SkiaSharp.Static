@@ -49,8 +49,8 @@ jobs:
         run: |
           cp args.gn out\windows\x64\
           cd skiasharp\externals\skia
-          uv run tools\git-sync-deps
-          uv run ..\depot_tools\gn.py gen ${{github.workspace}}\out\windows\x64\
+          uv run --python 3.12 -- python tools\git-sync-deps
+          uv run --python 3.12 -- python ..\depot_tools\gn.py gen ${{github.workspace}}\out\windows\x64\
 
       - name: Build skia
         working-directory: ${{github.workspace}}
