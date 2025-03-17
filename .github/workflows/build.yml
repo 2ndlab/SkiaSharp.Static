@@ -8,6 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
 
       - uses: actions/cache@v4
         with:
@@ -98,7 +100,7 @@ jobs:
         with:
           name: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
           path: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
-       
+
       - uses: actions/upload-artifact@v4
         with:
           name: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
