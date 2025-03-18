@@ -24,12 +24,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Create Dir
+        shell: bash
+        run: mkdir -p skiasharp
 
       - name: Clone source
         working-directory: ${{github.workspace}}
         shell: pwsh
         run: |
-          mkdir -p skiasharp && cd skiasharp
+          cd skiasharp
           git init && git remote add origin https://github.com/mono/SkiaSharp.git
           git fetch --depth 1 origin release/$env:SkiaSharpVersion
           git checkout --recurse-submodules -q FETCH_HEAD
@@ -37,7 +40,7 @@ jobs:
 
       - name: Create build dir
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: mkdir -p out\windows\x64\
 
       - name: Prepare build skia
@@ -81,7 +84,7 @@ jobs:
         shell: pwsh
         run: |
           cd skiasharp\native\windows\libHarfBuzzSharp\bin\x64\Release
-          7z a -y -mx9 libHarfBuzzSharp-$env:UCRTVersion.7z ./libHarfBuzzSharp.lib ./libHarfBuzzSharp.pdb
+          7z a -y -mx9 libHarfBuzzSharp-$env:UCRTVersion.7z ./libHarfBuzzSharp.*
           cp libHarfBuzzSharp-$env:UCRTVersion.7z ${{github.workspace}}
 
       - name: Create MD5
