@@ -81,7 +81,7 @@ jobs:
         shell: pwsh
         run: |
           cd skiasharp\native\windows\libHarfBuzzSharp\bin\x64\Release
-          7z a -y -mx9 libHarfBuzzSharp-$env:UCRTVersion.7z ./libHarfBuzzSharp.lib
+          7z a -y -mx9 libHarfBuzzSharp-$env:UCRTVersion.7z ./libHarfBuzzSharp.lib ./libHarfBuzzSharp.pdb
           cp libHarfBuzzSharp-$env:UCRTVersion.7z ${{github.workspace}}
 
       - name: Create MD5
