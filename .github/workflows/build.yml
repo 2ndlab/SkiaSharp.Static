@@ -45,7 +45,7 @@ jobs:
 
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         # Python 3.13 removed 'pipes' module, so we use 3.12 instead.
         # uv run --python 3.12 -- python tools\git-sync-deps
         # ..\..\..\out\windows\x64\
