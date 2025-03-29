@@ -41,19 +41,20 @@ jobs:
       - name: Create build dir
         working-directory: ${{github.workspace}}
         shell: bash
-        run: mkdir -p out\\windows\\x64\\
+        run: | 
+            mkdir -p out\\windows\\x64\\
+            mv args.gn out\\windows\\x64\\
 
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
-        shell: bash
+        shell: pwsh
         # Python 3.13 removed 'pipes' module, so we use 3.12 instead.
         # uv run --python 3.12 -- python tools\git-sync-deps
         # ..\..\..\out\windows\x64\
         run: |
-          mv args.gn out\\windows\\x64\\
-          cd skiasharp\\externals\\skia
-          uv run --python 3.12 -- python tools\\git-sync-deps
-          uv run --python 3.12 -- python ..\\depot_tools\\gn.py gen ${{github.workspace}}\\out\\windows\\x64\\
+          cd skiasharp\externals\skia
+          uv run --python 3.12 -- python tools\git-sync-deps
+          uv run --python 3.12 -- python ..\depot_tools\gn.py gen ${{github.workspace}}\out\windows\x64\
 
       - name: Build skia
         working-directory: ${{github.workspace}}
