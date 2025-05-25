@@ -1,21 +1,43 @@
 # Build arguments go here.
 # See "gn args <out_dir> --list" for available build arguments.
-target_os="win"
-target_cpu="x64"
-is_official_build=true
-is_static_skiasharp=true
-skia_enable_fontmgr_win_gdi=false
-skia_use_dng_sdk=true
-skia_use_icu=false
-skia_use_piex=true
-skia_use_sfntly=false
-skia_use_system_expat=false
-skia_use_system_libjpeg_turbo=false
-skia_use_system_libpng=false
-skia_use_system_libwebp=false
-skia_use_system_zlib=false
-skia_use_vulkan=true
-skia_use_angle=true
-skia_enable_skottie=true
-skia_enable_gpu=true
-extra_cflags=[ "-DSKIA_C_DLL", "/MT", "/EHsc", "-D_HAS_AUTO_PTR_ETC=1" ]
+target_os = "win"
+target_cpu = "x64"
+
+is_official_build = true
+is_static_skiasharp = true
+
+skia_enable_tools = false
+skia_enable_fontmgr_win_gdi = false
+skia_enable_pdf = false
+skia_enable_skottie = false
+
+skia_use_angle = false
+skia_use_dng_sdk = false
+skia_use_icu = false
+skia_use_piex = false
+skia_use_sfntly = false
+skia_use_system_expat = false
+skia_use_system_libjpeg_turbo = false
+skia_use_system_libpng = false
+skia_use_system_libwebp = false
+skia_use_system_zlib = false
+skia_use_vma = false # VULKAN VMA
+skia_use_vulkan = false
+skia_use_xps = false
+
+win_sdk_version = "10.0.26100.0"
+
+clang_win =
+    "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/Llvm/x64"
+
+extra_cflags = [
+  "/MT",
+  "/EHsc",
+  "-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
+]
+extra_ldflags = [
+  "/DEBUG:FULL",
+  "/DEBUGTYPE:CV,FIXUP",
+  "/OPT:REF",
+  "/OPT:ICF",
+]
