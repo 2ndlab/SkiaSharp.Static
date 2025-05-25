@@ -1,10 +1,15 @@
 name: build
-on: [push]
+on:
+  push:
+    paths:
+      - ".github/workflows/build.yml"
+      - "args.gn"
 env:
   SkiaSharpVersion: 2.88.9
 jobs:
   build:
-    runs-on: windows-latest
+    # https://github.com/actions/runner-images/tree/main/images/windows
+    runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
       - uses: TheMrMilchmann/setup-msvc-dev@v3
@@ -14,16 +19,17 @@ jobs:
       - uses: actions/cache@v4
         with:
           # build should be beside of git repo because it's submodule must be a empty dir when init.
-          path: out/windows/x64/obj
+          path: out/windows/x64
           key: ${{ runner.os }}-skia-build-cache
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
 
       - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Create Dir
         shell: bash
         run: mkdir -p skiasharp
@@ -41,9 +47,9 @@ jobs:
       - name: Create build dir
         working-directory: ${{github.workspace}}
         shell: bash
-        run: | 
-            mkdir -p out\\windows\\x64\\
-            mv args.gn out\\windows\\x64\\
+        run: |
+          mkdir -p out\\windows\\x64\\
+          mv args.gn out\\windows\\x64\\
 
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
@@ -54,16 +60,14 @@ jobs:
         run: |
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
-          uv run --python 3.12 -- python ..\depot_tools\gn.py gen ${{github.workspace}}\out\windows\x64\
+          uv run --python 3.12 -- python ..\depot_tools\gn gen out\windows\x64
 
       - name: Build skia
         working-directory: ${{github.workspace}}
         # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
-          ..\depot_tools\ninja -C ${{github.workspace}}\out\windows\x64\ SkiaSharp
-          cd ${{github.workspace}}\out\windows\x64\
-          lib.exe /OUT:libSkiaSharp.lib *.lib
+          ..\depot_tools\autoninja -C out\windows\x64 skia SkiaSharp
 
       - name: Build libHarfBuzzSharp
         working-directory: ${{github.workspace}}
@@ -77,7 +81,7 @@ jobs:
         shell: pwsh
         run: |
           cd ${{github.workspace}}\out\windows\x64\
-          7z a -y -mx9 libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z ./libSkiaSharp.lib
+          7z a -y -mx9 libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z skia.lib SkiaSharp.lib
           cp libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z ${{github.workspace}}
 
       - name: Package libHarfBuzzSharp
@@ -94,6 +98,21 @@ jobs:
         run: |
           md5sum libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z > libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z.md5
           md5sum libHarfBuzzSharp-$UCRTVersion.7z > libHarfBuzzSharp-$UCRTVersion.7z.md5
+
+      # Authenticate with GitHub CLI
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      # Save the workflow log to a file
+      - name: Save workflow log
+        run: gh run view ${{ github.run_id }} --repo ${{ github.repository }} --log > workflow.log
+
+      # Upload the log as an artifact
+      - name: Upload build log artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: workflow.log
 
       - uses: actions/upload-artifact@v4
         with:
@@ -113,6 +132,7 @@ jobs:
         with:
           name: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
           path: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
+
       - name: Release artifacts
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -122,3 +142,4 @@ jobs:
             libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
             libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
             libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
+            workflow.log
