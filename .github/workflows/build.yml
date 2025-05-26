@@ -70,9 +70,9 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          cd skiasharp\native\windows\libHarfBuzzSharp\bin\x64\Release
+          cd skiasharp/native/windows/libHarfBuzzSharp/bin/x64/Release
           7z a -y -mx9 $HarfBuzzSharpName.7z ./libHarfBuzzSharp.*
-          cp $HarfBuzzSharpName.7z $env:GITHUB_WORKSPACE
+          cp $HarfBuzzSharpName.7z $GITHUB_WORKSPACE
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
