@@ -81,7 +81,7 @@ jobs:
         shell: pwsh
         run: |
           cd ${{github.workspace}}\out\windows\x64\
-          ls -al .
+          ls
           7z a -y -mx9 libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z skia.lib SkiaSharp.lib
           cp libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z ${{github.workspace}}
 
