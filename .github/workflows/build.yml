@@ -30,9 +30,29 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git config --global depot-tools.allowGlobalGitConfig true
+
       - name: Create Dir
         shell: bash
-        run: mkdir -p skiasharp
+        run: |
+          mkdir -p skiasharp
+          mkdir -p out/windows/x64
+          mv args.gn out/windows/x64/
+
+      - name: clone depot_tools
+        run: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 --no-tags --single-branch
+
+      - name: Setup PATH and ENV
+        run: |
+          echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
+          echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
+
+      - run: update_depot_tools
 
       - name: Clone source
         working-directory: ${{github.workspace}}
@@ -44,13 +64,6 @@ jobs:
           git checkout --recurse-submodules -q FETCH_HEAD
           git submodule update --init --depth 1
 
-      - name: Create build dir
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          mkdir -p out\\windows\\x64\\
-          mv args.gn out\\windows\\x64\\
-
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
         shell: pwsh
@@ -60,14 +73,14 @@ jobs:
         run: |
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
-          uv run --python 3.12 -- python ..\depot_tools\gn gen out\windows\x64
+          gn gen $env:GITHUB_WORKSPACE\out\windows\x64
 
       - name: Build skia
         working-directory: ${{github.workspace}}
         # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
-          ..\depot_tools\autoninja -C out\windows\x64 skia SkiaSharp
+          autoninja -C $env:GITHUB_WORKSPACE\out\windows\x64 skia SkiaSharp
 
       - name: Build libHarfBuzzSharp
         working-directory: ${{github.workspace}}
@@ -81,6 +94,7 @@ jobs:
         shell: pwsh
         run: |
           cd ${{github.workspace}}\out\windows\x64\
+          ls
           7z a -y -mx9 libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z skia.lib SkiaSharp.lib
           cp libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z ${{github.workspace}}
 
@@ -98,21 +112,6 @@ jobs:
         run: |
           md5sum libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z > libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z.md5
           md5sum libHarfBuzzSharp-$UCRTVersion.7z > libHarfBuzzSharp-$UCRTVersion.7z.md5
-
-      # Authenticate with GitHub CLI
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
-      # Save the workflow log to a file
-      - name: Save workflow log
-        run: gh run view ${{ github.run_id }} --repo ${{ github.repository }} --log > workflow.log
-
-      # Upload the log as an artifact
-      - name: Upload build log artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: workflow.log
 
       - uses: actions/upload-artifact@v4
         with:
@@ -142,4 +141,3 @@ jobs:
             libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
             libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
             libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
-            workflow.log
