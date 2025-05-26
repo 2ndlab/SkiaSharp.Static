@@ -51,7 +51,8 @@ jobs:
         run: |
           echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
           echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
-          update_depot_tools
+
+      - run: update_depot_tools
 
       - name: Clone source
         working-directory: ${{github.workspace}}
