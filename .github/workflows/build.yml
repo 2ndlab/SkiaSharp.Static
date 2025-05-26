@@ -100,21 +100,6 @@ jobs:
           md5sum libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z > libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z.md5
           md5sum libHarfBuzzSharp-$UCRTVersion.7z > libHarfBuzzSharp-$UCRTVersion.7z.md5
 
-      # Authenticate with GitHub CLI
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
-      # Save the workflow log to a file
-      - name: Save workflow log
-        run: gh run view ${{ github.run_id }} --repo ${{ github.repository }} --log > workflow.log
-
-      # Upload the log as an artifact
-      - name: Upload build log artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: workflow.log
-
       - uses: actions/upload-artifact@v4
         with:
           name: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z
@@ -143,4 +128,3 @@ jobs:
             libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
             libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
             libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
-            workflow.log
