@@ -59,20 +59,20 @@ jobs:
 
       - name: Package libSkiaSharp
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: |
-          cd $env:BuildDir
+          cd $BuildDir
           ls
-          7z a -y -mx9 .7z ${env:SkiaSharpName}.7z skia.lib SkiaSharp.lib
-          cp ${env:SkiaSharpName}.7z $env:GITHUB_WORKSPACE
+          7z a -y -mx9 .7z $SkiaSharpName.7z skia.lib SkiaSharp.lib
+          cp $SkiaSharpName.7z $env:GITHUB_WORKSPACE
 
       - name: Package libHarfBuzzSharp
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: |
           cd skiasharp\native\windows\libHarfBuzzSharp\bin\x64\Release
-          7z a -y -mx9 ${env:HarfBuzzSharpName}.7z ./libHarfBuzzSharp.*
-          cp ${env:HarfBuzzSharpName}.7z $env:GITHUB_WORKSPACE
+          7z a -y -mx9 $HarfBuzzSharpName.7z ./libHarfBuzzSharp.*
+          cp $HarfBuzzSharpName.7z $env:GITHUB_WORKSPACE
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
