@@ -60,14 +60,14 @@ jobs:
         run: |
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
-          uv run --python 3.12 -- python ..\depot_tools\gn gen out\windows\x64
+          uv run --python 3.12 -- python ..\depot_tools\gn.py gen out\windows\x64
 
       - name: Build skia
         working-directory: ${{github.workspace}}
         # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
-          ..\depot_tools\autoninja -C out\windows\x64 skia SkiaSharp
+          uv run --python 3.12 -- python ..\depot_tools\autoninja.py -C out\windows\x64 skia SkiaSharp
 
       - name: Build libHarfBuzzSharp
         working-directory: ${{github.workspace}}
