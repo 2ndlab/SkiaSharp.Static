@@ -67,7 +67,7 @@ jobs:
         # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
-          uv run --python 3.12 -- python ..\depot_tools\autoninja.py -C ${{github.workspace}}\out\windows\x64
+          ninja -C ${{github.workspace}}\out\windows\x64 SkiaSharp -j 6
 
       - name: Build libHarfBuzzSharp
         working-directory: ${{github.workspace}}
