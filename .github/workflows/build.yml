@@ -2,7 +2,8 @@ name: build
 on:
   push:
     paths:
-      - ".github/workflows/build.yml"
+      - ".github/workflows/**"
+      - ".github/actions/**"
       - "args.gn"
 env:
   SkiaSharpVersion: 2.88.9
@@ -12,47 +13,14 @@ jobs:
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
-      - uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
-
-      - uses: actions/cache@v4
-        with:
-          # build should be beside of git repo because it's submodule must be a empty dir when init.
-          path: out/windows/x64
-          key: ${{ runner.os }}-skia-build-cache
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git config --global depot-tools.allowGlobalGitConfig true
+      - uses: ./.github/actions/setup
 
       - name: Create Dir
         shell: bash
         run: |
           mkdir -p skiasharp
-          mkdir -p out/windows/x64
-          mv args.gn out/windows/x64/
-
-      - name: clone depot_tools
-        run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 --no-tags --single-branch
-
-      - name: Setup PATH and ENV
-        run: |
-          echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
-          echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
-
-      - run: update_depot_tools
+          mkdir -p $BuildDir
+          mv args.gn $BuildDir
 
       - name: Clone source
         working-directory: ${{github.workspace}}
@@ -73,14 +41,14 @@ jobs:
         run: |
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
-          gn gen $env:GITHUB_WORKSPACE\out\windows\x64
+          gn gen $env:BuildDir
 
       - name: Build skia
         working-directory: ${{github.workspace}}
         # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
-          autoninja -C $env:GITHUB_WORKSPACE\out\windows\x64 skia SkiaSharp
+          autoninja -C $env:BuildDir skia SkiaSharp
 
       - name: Build libHarfBuzzSharp
         working-directory: ${{github.workspace}}
@@ -91,53 +59,26 @@ jobs:
 
       - name: Package libSkiaSharp
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: |
-          cd ${{github.workspace}}\out\windows\x64\
+          cd $BuildDir
           ls
-          7z a -y -mx9 libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z skia.lib SkiaSharp.lib
-          cp libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion.7z ${{github.workspace}}
+          7z a -y -mx9 .7z $SkiaSharpName.7z skia.lib SkiaSharp.lib
+          mv $SkiaSharpName.7z $GITHUB_WORKSPACE
 
       - name: Package libHarfBuzzSharp
         working-directory: ${{github.workspace}}
-        shell: pwsh
+        shell: bash
         run: |
-          cd skiasharp\native\windows\libHarfBuzzSharp\bin\x64\Release
-          7z a -y -mx9 libHarfBuzzSharp-$env:UCRTVersion.7z ./libHarfBuzzSharp.*
-          cp libHarfBuzzSharp-$env:UCRTVersion.7z ${{github.workspace}}
+          cd skiasharp/native/windows/libHarfBuzzSharp/bin/x64/Release
+          7z a -y -mx9 $HarfBuzzSharpName.7z ./libHarfBuzzSharp.*
+          mv $HarfBuzzSharpName.7z $GITHUB_WORKSPACE
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          md5sum libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z > libSkiaSharp-$SkiaSharpVersion-$UCRTVersion.7z.md5
-          md5sum libHarfBuzzSharp-$UCRTVersion.7z > libHarfBuzzSharp-$UCRTVersion.7z.md5
+          md5sum $SkiaSharpName.7z > $SkiaSharpName.7z.md5
+          md5sum $HarfBuzzSharpName.7z > $HarfBuzzSharpName.7z.md5
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z
-          path: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
-          path: libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
-          path: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
-          path: libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
-
-      - name: Release artifacts
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z
-            libSkiaSharp-${{ env.SkiaSharpVersion }}-${{ env.UCRTVersion }}.7z.md5
-            libHarfBuzzSharp-${{ env.UCRTVersion }}.7z
-            libHarfBuzzSharp-${{ env.UCRTVersion }}.7z.md5
+      - uses: ./.github/actions/deploy

@@ -1,0 +1,33 @@
+name: Deploy action
+description: Deploy action
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.SkiaSharpName }}.7z
+        path: ${{ env.SkiaSharpName }}.7z
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.SkiaSharpName }}.7z.md5
+        path: ${{ env.SkiaSharpName }}.7z.md5
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.HarfBuzzSharpName }}.7z
+        path: ${{ env.HarfBuzzSharpName }}.7z
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.HarfBuzzSharpName }}.7z.md5
+        path: ${{ env.HarfBuzzSharpName }}.7z.md5
+
+    - name: Release artifacts
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ${{ env.SkiaSharpName }}.7z
+          ${{ env.SkiaSharpName }}.7z.md5
+          ${{ env.HarfBuzzSharpName }}.7z
+          ${{ env.HarfBuzzSharpName }}.7z.md5
