@@ -64,7 +64,7 @@ jobs:
           cd $BuildDir
           ls
           7z a -y -mx9 .7z $SkiaSharpName.7z skia.lib SkiaSharp.lib
-          cp $SkiaSharpName.7z $env:GITHUB_WORKSPACE
+          cp $SkiaSharpName.7z $GITHUB_WORKSPACE
 
       - name: Package libHarfBuzzSharp
         working-directory: ${{github.workspace}}
