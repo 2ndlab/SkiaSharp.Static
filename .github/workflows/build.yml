@@ -63,7 +63,7 @@ jobs:
         run: |
           cd $BuildDir
           ls
-          7z a -y -mx9 .7z $SkiaSharpName.7z skia.lib SkiaSharp.lib
+          7z a -y -mx9 $SkiaSharpName.7z skia.lib SkiaSharp.lib
           mv $SkiaSharpName.7z $GITHUB_WORKSPACE
 
       - name: Package libHarfBuzzSharp
