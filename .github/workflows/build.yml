@@ -9,8 +9,11 @@ env:
   SkiaSharpVersion: 2.88.9
 jobs:
   build:
-    # https://github.com/actions/runner-images/tree/main/images/windows
     runs-on: windows-2025
+    permissions:
+      id-token: write
+      attestations: write
+
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
