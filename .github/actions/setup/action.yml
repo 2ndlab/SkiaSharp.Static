@@ -7,12 +7,6 @@ runs:
       with:
         arch: x64
 
-    - uses: actions/cache@v4
-      with:
-        # build should be beside of git repo because it's submodule must be a empty dir when init.
-        path: out/windows/x64
-        key: ${{ runner.os }}-skia-build-cache
-
     - name: Install uv
       uses: astral-sh/setup-uv@v6
 

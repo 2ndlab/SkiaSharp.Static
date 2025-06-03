@@ -36,8 +36,6 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: pwsh
         # Python 3.13 removed 'pipes' module, so we use 3.12 instead.
-        # uv run --python 3.12 -- python tools\git-sync-deps
-        # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
@@ -45,7 +43,6 @@ jobs:
 
       - name: Build skia
         working-directory: ${{github.workspace}}
-        # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
           autoninja -C $env:BuildDir skia SkiaSharp
@@ -73,12 +70,5 @@ jobs:
           cd skiasharp/native/windows/libHarfBuzzSharp/bin/x64/Release
           7z a -y -mx9 $HarfBuzzSharpName.7z ./libHarfBuzzSharp.*
           mv $HarfBuzzSharpName.7z $GITHUB_WORKSPACE
-
-      - name: Create MD5
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          md5sum $SkiaSharpName.7z > $SkiaSharpName.7z.md5
-          md5sum $HarfBuzzSharpName.7z > $HarfBuzzSharpName.7z.md5
 
       - uses: ./.github/actions/deploy

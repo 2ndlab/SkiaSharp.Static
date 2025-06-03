@@ -4,23 +4,26 @@ runs:
   using: "composite"
   steps:
     - uses: actions/upload-artifact@v4
+      id: upload-artifact-1
       with:
         name: ${{ env.SkiaSharpName }}.7z
         path: ${{ env.SkiaSharpName }}.7z
 
     - uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.SkiaSharpName }}.7z.md5
-        path: ${{ env.SkiaSharpName }}.7z.md5
-
-    - uses: actions/upload-artifact@v4
+      id: upload-artifact-2
       with:
         name: ${{ env.HarfBuzzSharpName }}.7z
         path: ${{ env.HarfBuzzSharpName }}.7z
-    - uses: actions/upload-artifact@v4
+
+    - uses: actions/attest-build-provenance@v2
       with:
-        name: ${{ env.HarfBuzzSharpName }}.7z.md5
-        path: ${{ env.HarfBuzzSharpName }}.7z.md5
+        subject-name: ${{ env.SkiaSharpName }}.7z
+        subject-digest: sha256:${{ steps.upload-artifact-1.outputs.artifact-digest }}
+
+    - uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ${{ env.HarfBuzzSharpName }}.7z
+        subject-digest: sha256:${{ steps.upload-artifact-2.outputs.artifact-digest }}
 
     - name: Release artifacts
       uses: softprops/action-gh-release@v2
@@ -28,6 +31,4 @@ runs:
       with:
         files: |
           ${{ env.SkiaSharpName }}.7z
-          ${{ env.SkiaSharpName }}.7z.md5
           ${{ env.HarfBuzzSharpName }}.7z
-          ${{ env.HarfBuzzSharpName }}.7z.md5
