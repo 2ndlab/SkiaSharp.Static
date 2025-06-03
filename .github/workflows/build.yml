@@ -32,6 +32,14 @@ jobs:
           git checkout --recurse-submodules -q FETCH_HEAD
           git submodule update --init --depth 1
 
+      - name: Restore source cache
+        uses: actions/cache/restore@v4
+        id: restore-src-cache
+        with:
+          path: |
+            skiasharp/externals/skia/third_party
+          key: ${{ runner.os }}-src-cache-${{ env.SkiaSharpVersion }}
+
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
         shell: pwsh
@@ -40,6 +48,15 @@ jobs:
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
           gn gen $env:BuildDir
+
+      - name: Save src cache immediately
+        id: save-src-cache
+        if: always() && steps.restore-src-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.restore-src-cache.outputs.cache-primary-key }}
+          path: |
+            skiasharp/externals/skia/third_party
 
       - name: Build skia
         working-directory: ${{github.workspace}}
