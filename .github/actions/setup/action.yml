@@ -7,40 +7,15 @@ runs:
       with:
         arch: x64
 
-    - uses: actions/cache@v4
-      with:
-        # build should be beside of git repo because it's submodule must be a empty dir when init.
-        path: out/windows/x64
-        key: ${{ runner.os }}-skia-build-cache
-
     - name: Install uv
       uses: astral-sh/setup-uv@v6
 
-    - name: "Set up Python"
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-
-    - name: Clone depot_tools
-      shell: pwsh
-      run: |
-        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 --no-tags --single-branch
+    - name: Setup depot tools
+      uses: 2ndlab/actions/setup-depot-tools@main
 
     - name: Setup PATH and ENV
       shell: pwsh
       run: |
-        echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
-        echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
         echo "SkiaSharpName=libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion" >> $env:GITHUB_ENV
         echo "HarfBuzzSharpName=libHarfBuzzSharp-$env:UCRTVersion" >> $env:GITHUB_ENV
         echo "BuildDir=$env:GITHUB_WORKSPACE/out/windows/x64" >> $env:GITHUB_ENV
-
-    - shell: pwsh
-      run: update_depot_tools
-
-    - name: Configure Git
-      shell: pwsh
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git config --global depot-tools.allowGlobalGitConfig true

@@ -9,8 +9,11 @@ env:
   SkiaSharpVersion: 2.88.9
 jobs:
   build:
-    # https://github.com/actions/runner-images/tree/main/images/windows
     runs-on: windows-2025
+    permissions:
+      id-token: write
+      attestations: write
+
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -32,20 +35,34 @@ jobs:
           git checkout --recurse-submodules -q FETCH_HEAD
           git submodule update --init --depth 1
 
+      - name: Restore source cache
+        uses: actions/cache/restore@v4
+        id: restore-src-cache
+        with:
+          path: |
+            skiasharp/externals/skia/third_party
+          key: ${{ runner.os }}-src-cache-${{ env.SkiaSharpVersion }}
+
       - name: Prepare build skia
         working-directory: ${{github.workspace}}
         shell: pwsh
         # Python 3.13 removed 'pipes' module, so we use 3.12 instead.
-        # uv run --python 3.12 -- python tools\git-sync-deps
-        # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
           uv run --python 3.12 -- python tools\git-sync-deps
           gn gen $env:BuildDir
 
+      - name: Save src cache immediately
+        id: save-src-cache
+        if: always() && steps.restore-src-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.restore-src-cache.outputs.cache-primary-key }}
+          path: |
+            skiasharp/externals/skia/third_party
+
       - name: Build skia
         working-directory: ${{github.workspace}}
-        # ..\..\..\out\windows\x64\
         run: |
           cd skiasharp\externals\skia
           autoninja -C $env:BuildDir skia SkiaSharp
@@ -63,7 +80,7 @@ jobs:
         run: |
           cd $BuildDir
           ls
-          7z a -y -mx9 .7z $SkiaSharpName.7z skia.lib SkiaSharp.lib
+          7z a -y -mx9 $SkiaSharpName.7z skia.lib SkiaSharp.lib
           mv $SkiaSharpName.7z $GITHUB_WORKSPACE
 
       - name: Package libHarfBuzzSharp
@@ -73,12 +90,5 @@ jobs:
           cd skiasharp/native/windows/libHarfBuzzSharp/bin/x64/Release
           7z a -y -mx9 $HarfBuzzSharpName.7z ./libHarfBuzzSharp.*
           mv $HarfBuzzSharpName.7z $GITHUB_WORKSPACE
-
-      - name: Create MD5
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          md5sum $SkiaSharpName.7z > $SkiaSharpName.7z.md5
-          md5sum $HarfBuzzSharpName.7z > $HarfBuzzSharpName.7z.md5
 
       - uses: ./.github/actions/deploy
