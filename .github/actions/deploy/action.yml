@@ -25,9 +25,17 @@ runs:
         subject-name: ${{ env.HarfBuzzSharpName }}.7z
         subject-digest: sha256:${{ steps.upload-artifact-2.outputs.artifact-digest }}
 
+    - name: Prerelease artifacts
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')  && contains(github.ref, '-pre')
+      with:
+        files: |
+          ${{ env.SkiaSharpName }}.7z
+          ${{ env.HarfBuzzSharpName }}.7z
+
     - name: Release artifacts
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/')  && !contains(github.ref, '-pre')
       with:
         files: |
           ${{ env.SkiaSharpName }}.7z
