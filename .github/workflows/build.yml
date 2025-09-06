@@ -5,6 +5,10 @@ on:
       - ".github/workflows/**"
       - ".github/actions/**"
       - "args.gn"
+defaults:
+  run:
+    shell: nu {0}
+
 env:
   SkiaSharpVersion: 2.88.9
 jobs:
@@ -19,19 +23,16 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Create Dir
-        shell: bash
         run: |
-          mkdir -p skiasharp
-          mkdir -p $BuildDir
-          mv args.gn $BuildDir
+          mkdir skiasharp $env.BuildDir
+          mv args.gn $env.BuildDir
 
       - name: Clone source
-        working-directory: ${{github.workspace}}
-        shell: pwsh
         run: |
           cd skiasharp
-          git init && git remote add origin https://github.com/mono/SkiaSharp.git
-          git fetch --depth 1 origin release/$env:SkiaSharpVersion
+          git init
+          git remote add origin https://github.com/mono/SkiaSharp.git
+          git fetch --depth 1 origin $"release/($env.SkiaSharpVersion)"
           git checkout --recurse-submodules -q FETCH_HEAD
           git submodule update --init --depth 1
 
@@ -44,13 +45,11 @@ jobs:
           key: ${{ runner.os }}-src-cache-${{ env.SkiaSharpVersion }}
 
       - name: Prepare build skia
-        working-directory: ${{github.workspace}}
-        shell: pwsh
         # Python 3.13 removed 'pipes' module, so we use 3.12 instead.
         run: |
-          cd skiasharp\externals\skia
-          uv run --python 3.12 -- python tools\git-sync-deps
-          gn gen $env:BuildDir
+          cd skiasharp/externals/skia
+          uv run --python 3.12 -- python tools/git-sync-deps
+          gn gen $env.BuildDir
 
       - name: Save src cache immediately
         id: save-src-cache
@@ -62,33 +61,39 @@ jobs:
             skiasharp/externals/skia/third_party
 
       - name: Build skia
-        working-directory: ${{github.workspace}}
         run: |
-          cd skiasharp\externals\skia
-          autoninja -C $env:BuildDir skia SkiaSharp
+          cd skiasharp/externals/skia
+          autoninja -C $env.BuildDir skia SkiaSharp
 
       - name: Build libHarfBuzzSharp
         working-directory: ${{github.workspace}}
-        shell: pwsh
         run: |
-          cd skiasharp\native\windows\libHarfBuzzSharp
-          msbuild -m -t:rebuild -p:"Configuration=Release;Platform=x64;ConfigurationType=StaticLibrary;WindowsTargetPlatformVersion=$env:UCRTVersion;PlatformToolset=v143"
+          cd skiasharp/native/windows/libHarfBuzzSharp
+
+          let msbuild_record = {
+              Configuration: "Release"
+              Platform: "x64"
+              ConfigurationType: "StaticLibrary"
+              WindowsTargetPlatformVersion: $env.UCRTVersion
+              PlatformToolset: "v143"
+              OutDir: $env.BuildDir
+          }
+
+          let msbuild_props = $msbuild_record | items {|key, value| $"($key)=($value)" } | str join ";"
+
+          msbuild -m -t:rebuild -p:$msbuild_props
 
       - name: Package libSkiaSharp
-        working-directory: ${{github.workspace}}
-        shell: bash
+        working-directory: ${{env.BuildDir}}
         run: |
-          cd $BuildDir
           ls
-          7z a -y -mx9 $SkiaSharpName.7z skia.lib SkiaSharp.lib
-          mv $SkiaSharpName.7z $GITHUB_WORKSPACE
+          7z a -y -mx9 $"($env.SkiaSharpName).7z" skia.lib SkiaSharp.lib
+          mv $"($env.SkiaSharpName).7z" $env.GITHUB_WORKSPACE
 
       - name: Package libHarfBuzzSharp
-        working-directory: ${{github.workspace}}
-        shell: bash
+        working-directory: ${{env.BuildDir}}
         run: |
-          cd skiasharp/native/windows/libHarfBuzzSharp/bin/x64/Release
-          7z a -y -mx9 $HarfBuzzSharpName.7z ./libHarfBuzzSharp.*
-          mv $HarfBuzzSharpName.7z $GITHUB_WORKSPACE
+          7z a -y -mx9 $"($env.HarfBuzzSharpName).7z" ./libHarfBuzzSharp.*
+          mv $"($env.HarfBuzzSharpName).7z" $env.GITHUB_WORKSPACE
 
       - uses: ./.github/actions/deploy
