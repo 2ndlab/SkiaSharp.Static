@@ -3,6 +3,10 @@ description: Setup build action
 runs:
   using: "composite"
   steps:
+    - uses: hustcer/setup-nu@main
+      with:
+        version: "*"
+
     - uses: TheMrMilchmann/setup-msvc-dev@v3
       with:
         arch: x64
@@ -14,8 +18,8 @@ runs:
       uses: 2ndlab/actions/setup-depot-tools@main
 
     - name: Setup PATH and ENV
-      shell: pwsh
+      shell: nu {0}
       run: |
-        echo "SkiaSharpName=libSkiaSharp-$env:SkiaSharpVersion-$env:UCRTVersion" >> $env:GITHUB_ENV
-        echo "HarfBuzzSharpName=libHarfBuzzSharp-$env:UCRTVersion" >> $env:GITHUB_ENV
-        echo "BuildDir=$env:GITHUB_WORKSPACE/out/windows/x64" >> $env:GITHUB_ENV
+        $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)" | save --append $env.GITHUB_ENV
+        $"HarfBuzzSharpName=libHarfBuzzSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)" | save --append $env.GITHUB_ENV
+        $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64" | save --append $env.GITHUB_ENV
