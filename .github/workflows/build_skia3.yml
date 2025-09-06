@@ -10,7 +10,7 @@ defaults:
     shell: nu {0}
 
 env:
-  SkiaSharpVersion: 2.88.9
+  SkiaSharpVersion: 3.119.0
 jobs:
   build:
     runs-on: windows-2025
