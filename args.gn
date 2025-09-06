@@ -28,7 +28,9 @@ skia_use_xps = false
 win_sdk_version = "10.0.26100.0"
 
 clang_win =
-    "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/Llvm/x64"
+    "C:/Program Files/LLVM"
+
+clang_win_version = 21 # clang-cl only has major version number
 
 extra_cflags = [
   "/MT",
