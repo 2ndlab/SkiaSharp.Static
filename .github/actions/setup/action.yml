@@ -20,6 +20,8 @@ runs:
     - name: Setup PATH and ENV
       shell: nu {0}
       run: |
-        $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)" | save --append $env.GITHUB_ENV
-        $"HarfBuzzSharpName=libHarfBuzzSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)" | save --append $env.GITHUB_ENV
-        $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64" | save --append $env.GITHUB_ENV
+        [
+            $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)"
+            $"HarfBuzzSharpName=libHarfBuzzSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)"
+            $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64"
+        ] | str join (char newline) | save --append $env.GITHUB_ENV
