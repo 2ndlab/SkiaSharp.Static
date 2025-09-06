@@ -81,7 +81,7 @@ jobs:
 
           let msbuild_props = $msbuild_record | items {|key, value| $"($key)=($value)" } | str join ";"
 
-          msbuild -m -t:rebuild -p:$msbuild_props
+          msbuild -m -t:rebuild -p:($msbuild_props)
 
       - name: Package libSkiaSharp
         working-directory: ${{env.BuildDir}}
