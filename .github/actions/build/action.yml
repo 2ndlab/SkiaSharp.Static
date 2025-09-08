@@ -83,3 +83,7 @@ runs:
       run: |
         7z a -y -mx9 $"($env.HarfBuzzSharpName).7z" ./libHarfBuzzSharp.*
         mv $"($env.HarfBuzzSharpName).7z" $env.GITHUB_WORKSPACE
+
+    - name: dotnet pack
+      shell: nu {0}
+      run: dotnet pack nuget/SkiaSharp.Static.csproj -p $"version=($env.SkiaSharpVersion)-($env.UCRTVersion)" -o $"($env.GITHUB_WORKSPACE)"
