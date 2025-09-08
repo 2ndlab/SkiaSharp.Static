@@ -6,9 +6,9 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <PackageId>2ndlab.SkiaSharp.Static</PackageId>
+        <PackageId>2ndLAB.SkiaSharp.Static</PackageId>
         <Version>2.88.9</Version>
-        <Authors>2ndlab</Authors>
+        <Authors>2ndLAB</Authors>
         <Description>SkiaSharp static library for Avalonia</Description>
         <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/2ndlab/SkiaSharp.Static</PackageProjectUrl>
