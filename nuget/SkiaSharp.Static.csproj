@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <BuildDir>$(MSBuildThisFileDirectory)../out/windows/x64</BuildDir>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>2ndlab.SkiaSharp.Static</PackageId>
+        <Version>2.88.9</Version>
+        <Authors>2ndlab</Authors>
+        <Description>SkiaSharp static library for Avalonia</Description>
+        <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/2ndlab/SkiaSharp.Static</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/2ndlab/SkiaSharp.Static</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <_FakeInclude Remove="@(_FakeInclude)" />
+        <_FakeInclude Include="$(MSBuildThisFileDirectory)_._" />
+    </ItemGroup>
+
+    <Target Name="AddFakeFilesForNuGet" BeforeTargets="GenerateNuspec">
+        <ItemGroup>
+            <None Include="@(_FakeInclude->'%(Identity)')"
+                Pack="true"
+                PackagePath="lib/net6.0/_._"
+                Condition="'%(Identity)' != ''" />
+            <None Include="@(_FakeInclude->'%(Identity)')"
+                Pack="true"
+                PackagePath="lib/net8.0/_._"
+                Condition="'%(Identity)' != ''" />
+        </ItemGroup>
+    </Target>
+
+    <ItemGroup>
+        <None Include="$(BuildDir)/libHarfBuzzSharp.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>libHarfBuzzSharp.lib</Link>
+        </None>
+        <None Include="$(BuildDir)/libHarfBuzzSharp.pdb"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+        </None>
+        <None Include="$(BuildDir)/skia.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>skia.lib</Link>
+        </None>
+        <None Include="$(BuildDir)/SkiaSharp.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>SkiaSharp.lib</Link>
+        </None>
+    </ItemGroup>
+</Project>
