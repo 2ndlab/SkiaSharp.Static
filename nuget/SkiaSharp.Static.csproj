@@ -35,6 +35,11 @@
     </Target>
 
     <ItemGroup>
+        <None Include="build\net8.0\$(AssemblyName).targets" Pack="true" PackagePath="build\net8.0" />
+        <None Include="build\net8.0\$(AssemblyName).targets" Pack="true" PackagePath="build\net6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="$(BuildDir)/libHarfBuzzSharp.lib"
             Pack="true"
             PackagePath="runtimes/win-x64/native/">
