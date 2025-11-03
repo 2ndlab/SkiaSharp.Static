@@ -20,10 +20,9 @@ runs:
     - name: Setup PATH and ENV
       shell: nu {0}
       run: |
-        let main_count = (git rev-list --count main | into int)
-        let diff_count = (git rev-list --count main..HEAD | into int)
+        let count = (git rev-list --count HEAD | into int)
         let hash = (git rev-parse --short HEAD)
-        let build = $"($main_count + $diff_count)+($hash)"
+        let build = $"($count)+($hash)"
         [
             $"BuildVersion=($build)"
             $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)-($build)"
