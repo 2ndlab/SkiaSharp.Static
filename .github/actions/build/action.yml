@@ -73,7 +73,6 @@ runs:
       shell: nu {0}
       working-directory: ${{env.BuildDir}}
       run: |
-        ls
         7z a -y -mx9 $"($env.SkiaSharpName).7z" skia.lib SkiaSharp.lib
         mv $"($env.SkiaSharpName).7z" $env.GITHUB_WORKSPACE
 
@@ -86,4 +85,4 @@ runs:
 
     - name: dotnet pack
       shell: nu {0}
-      run: dotnet pack nuget/SkiaSharp.Static.csproj -p $"version=($env.SkiaSharpVersion)-($env.UCRTVersion)" -o $"($env.GITHUB_WORKSPACE)"
+      run: dotnet pack nuget/SkiaSharp.Static.csproj -p $"version=($env.SkiaSharpVersion)-($env.UCRTVersion)-($env.BuildVersion)" -o $"($env.GITHUB_WORKSPACE)"
