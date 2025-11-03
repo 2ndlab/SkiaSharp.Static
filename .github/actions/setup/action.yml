@@ -22,8 +22,9 @@ runs:
       run: |
         let main_count = (git rev-list --count main | into int)
         let diff_count = (git rev-list --count main..HEAD | into int)
+        let total_count = $main_count + $diff_count
         let hash = (git rev-parse --short HEAD)
-        let build =$"($main_count + $diff_count)+($hash)"
+        let build =$"($total_count)+($hash)"
         [
             $"BuildVersion=($build)"
             $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)-($build)"
