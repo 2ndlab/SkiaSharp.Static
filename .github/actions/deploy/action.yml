@@ -46,7 +46,7 @@ runs:
       env:
         NUGET_KEY: ${{ inputs.NUGET_KEY }}
       shell: nu {0}
-      run: dotnet nuget push $"($env.PackageName)".nupkg -k $env.NUGET_KEY -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push $"($env.PackageName).nupkg" -k $env.NUGET_KEY -s https://api.nuget.org/v3/index.json
 
     - name: Prerelease artifacts
       uses: softprops/action-gh-release@v2
