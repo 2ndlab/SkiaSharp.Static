@@ -42,11 +42,11 @@ runs:
         subject-name: ${{ env.PackageName }}.nupkg
         subject-digest: sha256:${{ steps.upload-artifact-3.outputs.artifact-digest }}
 
-    # - if: startsWith(github.ref, 'refs/tags/')  && !contains(github.ref, '-pre')
-    #   env:
-    #     NUGET_KEY: ${{ inputs.NUGET_KEY }}
-    #   shell: nu {0}
-    #   run: dotnet nuget push $"($env.PackageName)".nupkg -k $env.NUGET_KEY
+    - if: startsWith(github.ref, 'refs/tags/')  && !contains(github.ref, '-pre')
+      env:
+        NUGET_KEY: ${{ inputs.NUGET_KEY }}
+      shell: nu {0}
+      run: dotnet nuget push $"($env.PackageName)".nupkg -k $env.NUGET_KEY
 
     - name: Prerelease artifacts
       uses: softprops/action-gh-release@v2
