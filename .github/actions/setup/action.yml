@@ -23,5 +23,6 @@ runs:
         [
             $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)"
             $"HarfBuzzSharpName=libHarfBuzzSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)"
-            $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64"
+            $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64/"
+            $"PackageName=2ndLAB.SkiaSharp.Static.($env.SkiaSharpVersion)-($env.UCRTVersion)"
         ] | str join (char newline) | save --append $env.GITHUB_ENV

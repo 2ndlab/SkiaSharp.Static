@@ -1,5 +1,11 @@
 name: Deploy action
 description: Deploy action
+
+inputs:
+  NUGET_KEY:
+    description: "The API key for NuGet"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -15,6 +21,12 @@ runs:
         name: ${{ env.HarfBuzzSharpName }}.7z
         path: ${{ env.HarfBuzzSharpName }}.7z
 
+    - uses: actions/upload-artifact@v4
+      id: upload-artifact-3
+      with:
+        name: ${{ env.PackageName }}.nupkg
+        path: ${{ env.PackageName }}.nupkg
+
     - uses: actions/attest-build-provenance@v2
       with:
         subject-name: ${{ env.SkiaSharpName }}.7z
@@ -25,6 +37,17 @@ runs:
         subject-name: ${{ env.HarfBuzzSharpName }}.7z
         subject-digest: sha256:${{ steps.upload-artifact-2.outputs.artifact-digest }}
 
+    - uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ${{ env.PackageName }}.nupkg
+        subject-digest: sha256:${{ steps.upload-artifact-3.outputs.artifact-digest }}
+
+    # - if: startsWith(github.ref, 'refs/tags/')  && !contains(github.ref, '-pre')
+    #   env:
+    #     NUGET_KEY: ${{ inputs.NUGET_KEY }}
+    #   shell: nu {0}
+    #   run: dotnet nuget push $"($env.PackageName)".nupkg -k $env.NUGET_KEY
+
     - name: Prerelease artifacts
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')  && contains(github.ref, '-pre')
@@ -33,7 +56,7 @@ runs:
         files: |
           ${{ env.SkiaSharpName }}.7z
           ${{ env.HarfBuzzSharpName }}.7z
-
+          ${{ env.PackageName }}.nupkg
     - name: Release artifacts
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')  && !contains(github.ref, '-pre')
@@ -41,3 +64,4 @@ runs:
         files: |
           ${{ env.SkiaSharpName }}.7z
           ${{ env.HarfBuzzSharpName }}.7z
+          ${{ env.PackageName }}.nupkg

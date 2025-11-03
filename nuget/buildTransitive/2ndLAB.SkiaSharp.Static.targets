@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <_SkiaSharpStaticRoot>$(MSBuildThisFileDirectory)../</_SkiaSharpStaticRoot>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(PublishAot)' == 'true'">
+        <NativeLibrary Include="$(_SkiaSharpStaticRoot)runtimes/win-x64/native/libHarfBuzzSharp.lib" />
+        <NativeLibrary Include="$(_SkiaSharpStaticRoot)runtimes/win-x64/native/skia.lib" />
+        <NativeLibrary Include="$(_SkiaSharpStaticRoot)runtimes/win-x64/native/SkiaSharp.lib" />
+    </ItemGroup>
+</Project>

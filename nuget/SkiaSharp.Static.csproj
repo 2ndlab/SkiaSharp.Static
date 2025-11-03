@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows7.0</TargetFramework>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <BuildDir>$(MSBuildThisFileDirectory)../out/windows/x64</BuildDir>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>2ndLAB.SkiaSharp.Static</PackageId>
+        <Version>3.119.0</Version>
+        <Authors>2ndLAB</Authors>
+        <Description>SkiaSharp static library for Avalonia</Description>
+        <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/2ndlab/SkiaSharp.Static</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/2ndlab/SkiaSharp.Static</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="buildTransitive\$(PackageId).targets" Pack="true" PackagePath="buildTransitive" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(BuildDir)/libHarfBuzzSharp.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>libHarfBuzzSharp.lib</Link>
+        </None>
+        <None Include="$(BuildDir)/libHarfBuzzSharp.pdb"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+        </None>
+        <None Include="$(BuildDir)/skia.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>skia.lib</Link>
+        </None>
+        <None Include="$(BuildDir)/SkiaSharp.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>SkiaSharp.lib</Link>
+        </None>
+    </ItemGroup>
+</Project>
