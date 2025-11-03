@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <TargetFramework>net8.0-windows7.0</TargetFramework>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <BuildDir>$(MSBuildThisFileDirectory)../out/windows/x64</BuildDir>
     </PropertyGroup>
 
     <PropertyGroup>
         <PackageId>2ndLAB.SkiaSharp.Static</PackageId>
-        <Version>2.88.9</Version>
+        <Version>3.119.0</Version>
         <Authors>2ndLAB</Authors>
         <Description>SkiaSharp static library for Avalonia</Description>
         <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
@@ -17,26 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <_FakeInclude Remove="@(_FakeInclude)" />
-        <_FakeInclude Include="$(MSBuildThisFileDirectory)_._" />
-    </ItemGroup>
-
-    <Target Name="AddFakeFilesForNuGet" BeforeTargets="GenerateNuspec">
-        <ItemGroup>
-            <None Include="@(_FakeInclude->'%(Identity)')"
-                Pack="true"
-                PackagePath="lib/net6.0/_._"
-                Condition="'%(Identity)' != ''" />
-            <None Include="@(_FakeInclude->'%(Identity)')"
-                Pack="true"
-                PackagePath="lib/net8.0/_._"
-                Condition="'%(Identity)' != ''" />
-        </ItemGroup>
-    </Target>
-
-    <ItemGroup>
-        <None Include="build\net8.0\$(AssemblyName).targets" Pack="true" PackagePath="build\net8.0" />
-        <None Include="build\net8.0\$(AssemblyName).targets" Pack="true" PackagePath="build\net6.0" />
+        <None Include="buildTransitive\$(PackageId).targets" Pack="true" PackagePath="buildTransitive" />
     </ItemGroup>
 
     <ItemGroup>
