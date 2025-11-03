@@ -22,11 +22,11 @@ runs:
       run: |
         let count = (git rev-list --count HEAD | into int)
         let hash = (git rev-parse --short HEAD)
-        let build = $"($count)+($hash)"
+        let build = $"($count).($hash)"
         [
             $"BuildVersion=($build)"
             $"SkiaSharpName=libSkiaSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)-($build)"
             $"HarfBuzzSharpName=libHarfBuzzSharp-($env.SkiaSharpVersion)-($env.UCRTVersion)-($build)"
             $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64/"
-            $"PackageName=2ndLAB.SkiaSharp.Static.($env.SkiaSharpVersion)-($env.UCRTVersion).($build)"
+            $"PackageName=2ndLAB.SkiaSharp.Static.($env.SkiaSharpVersion)-($env.UCRTVersion)-($build)"
         ] | str join (char newline) | save --append $env.GITHUB_ENV
